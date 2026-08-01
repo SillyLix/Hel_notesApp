@@ -1,10 +1,9 @@
 // mongo database
 const mongoose = require('mongoose');
 
-const mongoURL = process.env.MONGODB_URI;
 mongoose.set('strictQuery', false);
 mongoose
-	.connect(mongoURL, { family: 4 })
+	.connect(process.env.MONGODB_URI, { family: 4 })
 	.then((result) => console.log('connected to MongoDB'))
 	.catch((error) =>
 		console.log(`error connecting to MongoDB: ${error.message}`),
