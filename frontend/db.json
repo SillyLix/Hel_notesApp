@@ -1,24 +1,19 @@
 {
-  "persons": [
+  "notes": [
     {
-      "name": "Ada Lovelace",
-      "number": "39-44-5323523",
-      "id": "2"
+      "content": "HTML is easy",
+      "important": false,
+      "id": "uylO-aQuX2s"
     },
     {
-      "name": "Dan Abramov",
-      "number": "12-43-234345",
-      "id": "3"
+      "content": "Browser can execute only JavaScript",
+      "important": false,
+      "id": "ZgH0kzcJRnw"
     },
     {
-      "name": "Mary Poppendieck",
-      "number": "39-23-6423122",
-      "id": "JZOMS2Q0rZw"
-    },
-    {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": "3YLLoOmIO98"
+      "content": "GET and POST are the most important methods of HTTP protocol",
+      "important": false,
+      "id": "_Sbbb2g-FHM"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
