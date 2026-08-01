@@ -1,4 +1,6 @@
 const express = require('express');
+require('dotenv').config();
+const Note = require('./models/Note');
 const app = express();
 
 const requestLogger = (request, response, next) => {
@@ -12,43 +14,25 @@ app.use(express.static('dist'));
 app.use(express.json());
 app.use(requestLogger);
 
-let notes = [
-	{
-		id: '1',
-		content: 'HTML is easy',
-		important: true,
-	},
-	{
-		id: '2',
-		content: 'java',
-		important: false,
-	},
-	{
-		id: '3',
-		content: 'GET and POST are the most important methods of HTTP protocol',
-		important: true,
-	},
-];
-
-const generateID = () => {
-	const maxID =
-		notes.length > 0 ? Math.max(...notes.map((n) => Number(n.id))) : 0;
-	return String(maxID + 1);
-};
-
 app.get('/api/notes', (request, response) => {
-	response.json(notes);
+	Note.find({}).then((notes) => {
+		response.json(notes);
+	});
 });
 
 app.get('/api/notes/:id', (request, response) => {
-	const id = request.params.id;
-	const note = notes.find((note) => note.id === id);
-
-	if (note) {
-		response.json(note);
-	} else {
-		response.status(404).end;
-	}
+	Note.findById(request.params.id)
+		.then((note) => {
+			if (note) {
+				response.json(note);
+			} else {
+				response.status(404).end();
+			}
+		})
+		.catch((error) => {
+			console.log(`Error with GET request: ${error.message}`);
+			response.status(400).end();
+		});
 });
 
 app.delete('/api/notes/:id', (request, response) => {
@@ -67,25 +51,53 @@ app.post('/api/notes', (request, response) => {
 		});
 	}
 
+	const note = new Note({
+		content: body.content,
+		important: body.important || false,
+		date: Date.now(),
+	});
+
+	console.log(Date.now());
+
+	note.save().then((savedNote) => {
+		response.json(savedNote);
+	});
+});
+
+app.put('/api/notes/:id', (request, response) => {
+	const body = request.body;
+
+	if (!body.content) {
+		return response.status(400).json({
+			error: 'content missing',
+		});
+	}
+
 	const note = {
 		content: body.content,
 		important: body.important || false,
-		id: generateID(),
+		date: Date.now(),
 	};
 
-	notes = notes.concat(note);
-	response.json(note);
+	Note.findByIdAndUpdate(request.params.id, note, {
+		new: true,
+		runValidators: true,
+		context: 'query',
+	})
+		.then((updatedNote) => {
+			if (updatedNote) {
+				response.json(updatedNote);
+			} else {
+				response.status(404).end();
+			}
+		})
+		.catch((error) => {
+			console.log(`Error with GET request: ${error.message}`);
+			response.status(400).end();
+		});
 });
 
-app.patch('/api/notes/:id', (request, response) => {
-	const note = request.body;
-	note.id = generateID();
-
-	notes = notes.concat(note);
-	response.json(note);
-});
-
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
 	console.log(`server running on port ${PORT}`);
 });
